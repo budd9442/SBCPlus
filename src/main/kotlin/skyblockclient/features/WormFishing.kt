@@ -1,33 +1,16 @@
 package skyblockclient.features
 
-import com.mojang.realmsclient.gui.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.monster.EntitySilverfish
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.init.Items
 import net.minecraft.util.AxisAlignedBB
-import net.minecraft.util.ChatComponentText
+import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
-import net.minecraftforge.fml.common.gameevent.InputEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import skyblockclient.SkyblockClient.Companion.config
-import skyblockclient.SkyblockClient.Companion.keyBinds
-import skyblockclient.features.MacroSafety.checkForPlayers
-import skyblockclient.features.MacroSafety.playerList
-
-import skyblockclient.utils.MouseUtils
-import skyblockclient.utils.TabListUtils.getTabListPlayersSkyblock
-import skyblockclient.utils.Utils
+import skyblockclient.config.Config
 import skyblockclient.utils.Utils.addMsg
-import skyblockclient.utils.Utils.isNpc
-import skyblockclient.utils.Utils.rand
 import skyblockclient.utils.Utils.rightClick
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import kotlin.random.Random
-import kotlin.time.times
 
 
 object WormFishing {
@@ -50,6 +33,15 @@ object WormFishing {
     @SubscribeEvent
     fun onWorldUnload(event:WorldEvent.Unload){
 
+    }
+
+    @SubscribeEvent
+    fun onChat(event: ClientChatReceivedEvent) {
+        if (Config.renewPass && event.type.toInt() == 0) {
+            if (event.message.unformattedText == "Your pass to the Crystal Hollows will expire in 1 minute") {
+                Minecraft.getMinecraft().thePlayer.sendChatMessage("/purchasecrystallhollowspass")
+            }
+        }
     }
 
     @SubscribeEvent

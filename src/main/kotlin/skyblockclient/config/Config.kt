@@ -34,6 +34,15 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
     var autoFishing = false
 
     @Property(
+        type = PropertyType.SWITCH,
+        name = "Auto renew pass",
+        description = "Renews Crystal hollows pass when its about to expire",
+        category = "Fishing",
+        subcategory = "General"
+    )
+    var renewPass = false
+
+    @Property(
         type = PropertyType.SLIDER,
         min = 100,
         max = 1000,

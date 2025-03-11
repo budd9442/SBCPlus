@@ -49,6 +49,7 @@ object AutoFisher {
                 if (!event.entity.customNameTag.endsWith("§r")) {
                     event.entity.customNameTag += "§r"
                     Minecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("Fish Hooked"))
+                    fails = 0
                     fishCount++
                     fishCountdown = -1
                     incoming =false
@@ -76,6 +77,7 @@ object AutoFisher {
             if (event.entity.hasCustomName() && event.entity.customNameTag.contains("?")) {
                 //addMsg("Incoming")
                 lastIncoming = System.currentTimeMillis()
+                fishCountdown+=1
                 incoming = true
             }
         }
@@ -119,9 +121,10 @@ object AutoFisher {
 
 
 
-            if(failsafeRecastEnabled && (System.currentTimeMillis() - lastReCast > config.autoRecastOnFail*1000) || (fishCountdown==0 && !incoming && failsafeRecastEnabled) ){
+            if(failsafeRecastEnabled && ((System.currentTimeMillis() - lastReCast > config.autoRecastOnFail*1000) ) ){
                 lastReCast = System.currentTimeMillis()
                 incoming = false
+                fishCountdown = config.fishCountdown
                 Executors.newSingleThreadScheduledExecutor().schedule({
 
                     rightClick()
