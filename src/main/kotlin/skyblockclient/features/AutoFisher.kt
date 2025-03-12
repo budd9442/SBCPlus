@@ -1,5 +1,8 @@
 package skyblockclient.features
 
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.init.Items
@@ -12,11 +15,13 @@ import net.minecraftforge.fml.common.gameevent.TickEvent
 import skyblockclient.SkyblockClient.Companion.config
 import skyblockclient.SkyblockClient.Companion.keyBinds
 import skyblockclient.features.WormFishing.getSilverFishCount
+import skyblockclient.utils.DiscordUtils
 import skyblockclient.utils.MouseUtils
 import skyblockclient.utils.Utils
 import skyblockclient.utils.Utils.addMsg
 import skyblockclient.utils.Utils.rand
 import skyblockclient.utils.Utils.rightClick
+import java.awt.Color
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
@@ -57,6 +62,7 @@ object AutoFisher {
                         rightClick()
                     }, (Random.nextInt(150) + 50).toLong(), TimeUnit.MILLISECONDS)
 
+                    if(config.noRecast) return
                     Executors.newSingleThreadScheduledExecutor().schedule({
                         rightClick()
                         lastReCast = System.currentTimeMillis()
@@ -82,21 +88,12 @@ object AutoFisher {
             }
         }
     }
-    @SubscribeEvent
-    fun onWorldLoad(event:WorldEvent.Load){
-        config.antiAFK = false
-        failsafeRecastEnabled = false
-        fishCount = 0
-    }
-    @SubscribeEvent
-    fun onWorldUnload(event:WorldEvent.Unload){
-        config.antiAFK = false
-        failsafeRecastEnabled=false
-        fishCount = 0
-    }
 
+
+    @OptIn(DelicateCoroutinesApi::class)
     @SubscribeEvent
     fun onTick(event: TickEvent.ClientTickEvent) {
+
 
         if (Minecraft.getMinecraft().thePlayer == null || !config.autoFishing) return;
         val heldItem = Minecraft.getMinecraft().thePlayer.heldItem
@@ -115,6 +112,12 @@ object AutoFisher {
                 failsafeRecastEnabled = false
                 Minecraft.getMinecraft().thePlayer.inventory.currentItem = config.weaponSlot
                 addMsg("Disabling")
+                GlobalScope.launch {
+                    DiscordUtils.sendWebhook("Alert","Auto fishing disabled due to failed attempts "+if (config.pingUser) "<@${config.userID}>" else "",
+                        Color.RED)
+
+                }
+
             }
 
             fishCountdown--
@@ -132,6 +135,10 @@ object AutoFisher {
                     incoming = false
                     fails++
                     addMsg("Fail $fails")
+                    GlobalScope.launch {
+                        DiscordUtils.sendWebhookText("Fail $fails"+if (config.pingUser) "<@${config.userID}>" else "")
+
+                    }
 
                 }, (Random.nextInt(300) + config.recastDelay).toLong(), TimeUnit.MILLISECONDS)
             }

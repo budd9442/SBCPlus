@@ -26,14 +26,7 @@ object WormFishing {
 
 
     }
-    @SubscribeEvent
-    fun onWorldLoad(event:WorldEvent.Load){
 
-    }
-    @SubscribeEvent
-    fun onWorldUnload(event:WorldEvent.Unload){
-
-    }
 
     @SubscribeEvent
     fun onChat(event: ClientChatReceivedEvent) {
@@ -50,7 +43,7 @@ object WormFishing {
 
         if ( event.phase == TickEvent.Phase.END) {
             tickCounter++
-            if(getSilverFishCount()>18 && !mobCap){
+            if(getSilverFishCount()>18 && !mobCap && config.autoKillAtMobCap){
                 mobCap = true
                 tickCounter = config.autoKillDelay*20
             }
@@ -62,6 +55,8 @@ object WormFishing {
                 addMsg("swapping")
                 (Minecraft.getMinecraft()).thePlayer.inventory.currentItem = config.weaponSlot
             }
+
+
 
             if(tickCounter % (config.autoKillDelay*20+20) == 0){
                 rightClick()

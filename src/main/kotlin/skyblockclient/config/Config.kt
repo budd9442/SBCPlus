@@ -15,30 +15,135 @@ import java.util.function.Consumer
 
 object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient", sortingBehavior = Sorting) {
 
-    @Property(
-        type = PropertyType.SWITCH,
-        name = "Worm fishing ESP",
-        description = "Detects lava in precursor remnants above Y=64.\n\nMade by TheStachelfisch",
-        category = "Fishing",
-        subcategory = "General"
-    )
-    var wormFishingLavaESP = false
 
     @Property(
         type = PropertyType.SWITCH,
         name = "Auto fishing",
         description = "Fish and recast when a fish is hooked",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "1. General"
     )
     var autoFishing = false
+    @Property(
+    type = PropertyType.SWITCH,
+    name = "Discord Alerts",
+    description = "Fish and recast when a fish is hooked",
+    category = "Discord",
+    subcategory = "Alerts"
+    )
+    var discordAlerts = false
+
+//    @Property(
+//        type = PropertyType.SWITCH,
+//        name = "Only on Anti AFK",
+//        description = "Only send alerts when anti afk is enabled",
+//        category = "Discord",
+//        subcategory = "Alerts"
+//    )
+//    var onlyOnAFK = false
+
+    @Property(
+        type = PropertyType.SWITCH,
+        name = "Pings",
+        description = "Mention user on important alerts",
+        category = "Discord",
+        subcategory = "Alerts"
+    )
+    var pingUser = false
+
+    @Property(
+        type = PropertyType.SWITCH,
+        name = "Player in range alert",
+        category = "Discord",
+        subcategory = "Alerts"
+    )
+    var playerInRangeAlert = false
+
+    @Property(
+        type = PropertyType.SWITCH,
+        name = "World change alert",
+        category = "Discord",
+        subcategory = "Alerts"
+    )
+    var worldChangeAlert = false
+
+    @Property(
+        type = PropertyType.SWITCH,
+        name = "Log in alert",
+        category = "Discord",
+        subcategory = "Alerts"
+    )
+    var loginAlert = false
+
+    @Property(
+        type = PropertyType.SWITCH,
+        name = "Log out alert",
+        category = "Discord",
+        subcategory = "Alerts"
+    )
+    var logoutAlert = false
+
+    @Property(
+        type = PropertyType.SWITCH,
+        name = "Inventory Full alert",
+        category = "Discord",
+        subcategory = "Alerts"
+    )
+    var invFullAlert = false
+
+    @Property(
+        type = PropertyType.SWITCH,
+        name = "Death alert",
+        category = "Discord",
+        subcategory = "Alerts"
+    )
+    var deathAlert = false
+
+    @Property(
+        type = PropertyType.TEXT,
+        name = "Webhook URL",
+        category = "Discord",
+        subcategory = "Settings"
+    )
+    var webHookURL = ""
+
+    @Property(
+        type = PropertyType.TEXT,
+        name = "User ID for ping",
+        category = "Discord",
+        subcategory = "Settings"
+    )
+    var userID = ""
+
+
+
+
+
+
+    @Property(
+        type = PropertyType.SWITCH,
+        name = "Disable recast",
+        description = "Don't recast after hooking a fish",
+        category = "Fishing",
+        subcategory = "1. General"
+    )
+    var noRecast = false
+
+    @Property(
+        type = PropertyType.SWITCH,
+        name = "Worm fishing ESP",
+        description = "Detects lava in precursor remnants above Y=64.\n\nMade by TheStachelfisch",
+        category = "Fishing",
+        subcategory = "2. Worm Fishing"
+    )
+    var wormFishingLavaESP = false
 
     @Property(
         type = PropertyType.SWITCH,
         name = "Auto renew pass",
         description = "Renews Crystal hollows pass when its about to expire",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "2. Worm Fishing"
     )
     var renewPass = false
 
@@ -49,7 +154,7 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         name = "Recast delay",
         description = "delay between recasts in milis",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "3. Advanced customization"
     )
     var recastDelay = 200
 
@@ -60,7 +165,7 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         name = "Fish bite countdown",
         description = "Maximum time to wait until a fish bites (in ticks)",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "3. Advanced customization"
     )
     var fishCountdown = 30
 
@@ -69,7 +174,7 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         name = "Anti AFK",
         description = "Move mouse randomly when fishing",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "1. General"
     )
     var antiAFK = false
 
@@ -80,7 +185,7 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         name = "Anti AFK delay",
         description = "delay between random mouse movements (in ticks)",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "3. Advanced customization"
     )
     var antiAFKDelay = 200
 
@@ -89,9 +194,9 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         min = 3,
         max = 20,
         name = "Auto recast timer on fail",
-        description = "",
+        description = "How long should we wait before recasting if no fish is incoming ( in seconds )",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "3. Advanced customization"
     )
     var autoRecastOnFail = 6
 
@@ -100,18 +205,18 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         name = "Auto Kill",
         description = "Auto kill every n Seconds",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "2. Worm Fishing"
     )
     var autoKill = false
 
     @Property(
         type = PropertyType.SWITCH,
-        name = "Auto Kill at 20 worms",
-        description = "Auto kill ",
+        name = "Auto Kill at mob cap",
+        description = "Auto kill worms when mob cap is hit",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "2. Worm Fishing"
     )
-    var autoKillAt15 = true
+    var autoKillAtMobCap = true
 
     @Property(
         type = PropertyType.SLIDER,
@@ -120,7 +225,7 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         name = "Auto Kill delay",
         description = "Auto kill delay in Seconds",
         category = "Fishing",
-        subcategory = "General",
+        subcategory = "1. General",
 
     )
     var autoKillDelay = 240
@@ -132,7 +237,7 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         name = "Fishing rod Slot",
         description = "starts from 0",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "4. Slots"
     )
     var rodSlot = 0
 
@@ -143,7 +248,7 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         name = "Weapon Slot",
         description = "AoE Right click ability weapon needed ( Yeti, Hype, Fire veil... )",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "4. Slots"
     )
     var weaponSlot = 1
 
@@ -154,18 +259,27 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         name = "Player scan range",
         description = "",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "5. Failsafe"
     )
-    var playerRange = 10
+    var playerRange = 20
 
     @Property(
         type = PropertyType.SWITCH,
         name = "Pause on player",
         description = "",
         category = "Fishing",
-        subcategory = "General"
+        subcategory = "1. General"
     )
     var pauseOnPlayer = false
+
+    @Property(
+        type = PropertyType.PARAGRAPH,
+        name = "Whitelist",
+        description = "Doesn't pause or auto kill if a whitelisted player comes nearby",
+        category = "Fishing",
+        subcategory = "5. Failsafe"
+    )
+    var whitelist = ""
 
 
 

@@ -7,8 +7,11 @@ import skyblockclient.SkyblockClient.Companion.config
 import skyblockclient.SkyblockClient.Companion.display
 import skyblockclient.config.Config.mimicMessage
 import skyblockclient.features.CapeManager
+import skyblockclient.utils.DiscordUtils
+import skyblockclient.utils.DiscordUtils.player
 
 import skyblockclient.utils.Utils.modMessage
+import java.awt.Color
 
 class SkyblockClientCommands : CommandBase() {
     override fun getCommandName(): String {
@@ -42,8 +45,10 @@ class SkyblockClientCommands : CommandBase() {
                 mimicMessage = message
                 modMessage("§aMimic message changed to §f$message")
             }
-            "reloadcape" -> {
-                CapeManager.loadCape()
+            "test" -> {
+                DiscordUtils.sendWebhook(
+                    "Alert", player.name + " Logged in! <@" + config.userID + ">", Color.GREEN
+                )
             }
             "af" -> {
                 if(args.size <2 ) config.autoFishing = !config.autoFishing

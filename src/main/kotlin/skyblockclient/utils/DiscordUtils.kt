@@ -1,29 +1,53 @@
 package skyblockclient.utils
 import me.binarywriter.discordwebhooks.data.*
+import net.minecraft.client.Minecraft
+import skyblockclient.SkyblockClient.Companion.config
+import java.awt.Color
 
-class DiscordUtils {
+object DiscordUtils {
+    var player = Minecraft.getMinecraft().thePlayer
 
-    fun sendWebhook(username:String,content:String) {
+    fun sendWebhook(title : String, desc : String, color:Color) {
+        if(player==null) return
         val webhook = Webhook {
-            this.username = "Username"
-            this.content = "Content"
+            this.username = player.name + "'s Slave"
+
+            this.avatarUrl = "https://mc-heads.net/avatar/" + player.name
             embed {
-                this.title = "Embed Title"
-                this.description = "Embed Description"
+                this.description = desc
+                this.title = title
 
-                author {
-                    this.name = "Author Name"
-                }
 
-                field {
-                    this.name = "Field Name"
-                    this.value = "Field Value"
-                }
+                this.color = color
+
+
 
             }
         }
 
-        webhook.send("URL HERE")
+        webhook.send(config.webHookURL)
+
+    }
+    fun sendWebhookText(text:String) {
+        if(player==null) return
+        val webhook = Webhook {
+            this.username = player.name + "'s Slave"
+
+            this.avatarUrl = "https://mc-heads.net/avatar/" + player.name
+            this.content = text
+//            embed {
+//                this.description = desc
+//                this.title = title
+//
+//
+//                this.color = color
+//
+//
+//
+//            }
+        }
+
+        webhook.send(config.webHookURL)
 
     }
 }

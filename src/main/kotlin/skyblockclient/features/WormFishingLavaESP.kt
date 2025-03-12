@@ -1,5 +1,6 @@
 package skyblockclient.features
 
+import net.minecraft.client.Minecraft
 import net.minecraft.init.Blocks
 import net.minecraft.util.BlockPos
 import net.minecraft.util.Vec3i
@@ -30,7 +31,8 @@ object WormFishingLavaESP {
 
     @SubscribeEvent
     fun onTick(event: TickEvent.ClientTickEvent) {
-        if (event.phase != TickEvent.Phase.START || !config.wormFishingLavaESP || !isCrystalHollow()) return
+        if (Minecraft.getMinecraft().thePlayer == null || !config.wormFishingLavaESP) return;
+        if (event.phase != TickEvent.Phase.START || !isCrystalHollow()) return
         if (thread?.isAlive == true || lastUpdate + config.wormFishingLavaESPTime > System.currentTimeMillis()) return
         thread = Thread({
             val blockList: MutableList<BlockPos> = mutableListOf()

@@ -1,57 +1,84 @@
 package skyblockclient.features
 
 import com.mojang.realmsclient.gui.ChatFormatting
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.util.AxisAlignedBB
 import net.minecraft.util.ChatComponentText
 import net.minecraftforge.event.world.ChunkWatchEvent.Watch
+import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.InputEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import org.lwjgl.Sys
 import skyblockclient.SkyblockClient.Companion.config
 import skyblockclient.SkyblockClient.Companion.keyBinds
+import skyblockclient.features.AutoFisher.fails
+import skyblockclient.features.AutoFisher.failsafeRecastEnabled
+import skyblockclient.features.AutoFisher.fishCount
+import skyblockclient.utils.DiscordUtils
 import skyblockclient.utils.Utils.addMsg
 import skyblockclient.utils.Utils.isNpc
 import skyblockclient.utils.Utils.rightClick
+import java.awt.Color
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
 
 object MacroSafety {
+    val mc = Minecraft.getMinecraft()
     var wasRecastFailEnabled = false
     val playerList = arrayListOf("")
     var tickCounter = 0
     var paused = false
+    var lastPause = System.currentTimeMillis()
+
+    @OptIn(DelicateCoroutinesApi::class)
     fun checkForPlayers(): Boolean {
-        //val whitelist: List<String> = Arrays.asList(NotEnoughUpdates.INSTANCE.config.macroSafety.whitelist.split(","))
-        val pos = (Minecraft.getMinecraft()).thePlayer.positionVector
-        val range: Int = 20
+
+        val thePlayer = mc.thePlayer
+        val pos = thePlayer.positionVector
+        val range: Int = config.playerRange
 
         val ab = AxisAlignedBB(
             pos.xCoord - range, pos.yCoord - range, pos.zCoord - range,
             pos.xCoord + range, pos.yCoord + range, pos.zCoord + range
         )
-        for (entity1 in (Minecraft.getMinecraft()).theWorld.getEntitiesWithinAABB<EntityPlayer>(
+
+        val currentPlayers = mc.theWorld.getEntitiesWithinAABB<EntityPlayer>(
             EntityPlayer::class.java, ab
-        )) {
-            if (!isNpc(entity1) && entity1.name !== Minecraft.getMinecraft().thePlayer.name) {
-                if (!playerList.contains(entity1.name)) {
-                    (Minecraft.getMinecraft()).thePlayer.addChatMessage(
-                        ChatComponentText(
-                            ChatFormatting.BLUE.toString() + "+" + entity1
-                                .name
-                        )
-                    )
-                }
-                playerList.add(entity1.name)
-                return true
+        ).filter {
+            !isNpc(it) && it.name != thePlayer.name && it.name !in config.whitelist
+        }.map { it.name }.toSet()
+
+        val playersToAdd = currentPlayers - playerList
+        val playersToRemove = playerList - currentPlayers
+
+        for (player in playersToAdd) {
+            thePlayer.addChatMessage(ChatComponentText(ChatFormatting.BLUE.toString() + "+" + player))
+            GlobalScope.launch {
+                DiscordUtils.sendWebhookText("+$player")
+
             }
         }
-        playerList.add(Minecraft.getMinecraft().thePlayer.name)
-        return false
+
+        for (player in playersToRemove) {
+            thePlayer.addChatMessage(ChatComponentText(ChatFormatting.RED.toString() + "-" + player))
+            GlobalScope.launch {
+                DiscordUtils.sendWebhookText("-$player")
+
+            }
+        }
+
+        playerList.removeAll(playersToRemove)
+        playerList.addAll(playersToAdd)
+
+        return currentPlayers.isNotEmpty()
     }
 
 
@@ -61,17 +88,19 @@ object MacroSafety {
         tickCounter++
         if (config.pauseOnPlayer && config.autoFishing && config.antiAFK ) {
             if (tickCounter % 10 == 0) {
-                if (!paused && checkForPlayers() ) {
+                if (!paused && checkForPlayers() && System.currentTimeMillis()-lastPause>5000) {
                     paused = true
                     config.autoFishing = false
                     config.antiAFK = false
                     config.autoKill = false
+                    playerList.clear()
                     pause()
+
 
 
                     val scheduler = Executors.newSingleThreadScheduledExecutor()
                     val task = scheduler.scheduleAtFixedRate({
-                        if (!checkForPlayers() && paused) {
+                        if (!checkForPlayers() && paused && System.currentTimeMillis()- lastPause > 3000) {
                             paused = false
                             config.autoFishing = true
                             config.antiAFK = true
@@ -87,9 +116,45 @@ object MacroSafety {
     }
 
 
+    @OptIn(DelicateCoroutinesApi::class)
+    @SubscribeEvent
+    fun onWorldLoad(event:WorldEvent.Load){
+        if( config.worldChangeAlert && config.antiAFK){
+            GlobalScope.launch {
+            DiscordUtils.sendWebhook("Alert","World changed "+if (config.pingUser) "<@${config.userID}>" else "",Color.RED)
+
+            }
+        }
+
+        config.antiAFK = false
+        failsafeRecastEnabled = false
+        fishCount = 0
+    }
+    @OptIn(DelicateCoroutinesApi::class)
+    @SubscribeEvent
+    fun onWorldUnload(event:WorldEvent.Unload){
+        if( config.worldChangeAlert && config.antiAFK){
+            GlobalScope.launch {
+                DiscordUtils.sendWebhook(
+                    "Alert",
+                    "World changed " + if (config.pingUser) "<@${config.userID}>" else "",
+                    Color.RED
+                )
+            }
+        }
+        config.antiAFK = false
+        failsafeRecastEnabled=false
+        fishCount = 0
+    }
 
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun pause(){
+         lastPause = System.currentTimeMillis()
+        if(config.playerInRangeAlert)
+        GlobalScope.launch {
+            DiscordUtils.sendWebhook("Alert","Player in range! Pausing" + if (config.pingUser) "<@${config.userID}>" else "", Color.RED)
+        }
         wasRecastFailEnabled = AutoFisher.failsafeRecastEnabled
         AutoFisher.failsafeRecastEnabled = false
         addMsg("Player detected! pausing")
@@ -99,8 +164,12 @@ object MacroSafety {
         }, (Random.nextInt(500) + 300).toLong(), TimeUnit.MILLISECONDS)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun resume(){
-
+        if(config.playerInRangeAlert)
+        GlobalScope.launch {
+            DiscordUtils.sendWebhook("Alert","No players in range! Resuming", Color.GREEN)
+        }
         addMsg("Resuming")
         (Minecraft.getMinecraft()).thePlayer.inventory.currentItem = config.rodSlot
         Executors.newSingleThreadScheduledExecutor().schedule({
