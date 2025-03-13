@@ -8,13 +8,11 @@ import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.init.Items
 import net.minecraft.util.ChatComponentText
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
-import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.InputEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import skyblockclient.SkyblockClient.Companion.config
 import skyblockclient.SkyblockClient.Companion.keyBinds
-import skyblockclient.features.WormFishing.getSilverFishCount
 import skyblockclient.utils.DiscordUtils
 import skyblockclient.utils.MouseUtils
 import skyblockclient.utils.Utils
@@ -44,33 +42,66 @@ object AutoFisher {
     var fails = 0
     @SubscribeEvent
     fun onCatch(event: net.minecraftforge.event.entity.EntityEvent) {
-
-        if (Minecraft.getMinecraft().thePlayer == null || !config.autoFishing) return;
-        val heldItem = Minecraft.getMinecraft().thePlayer.heldItem
+        if (Minecraft.getMinecraft().thePlayer == null || !config.autoFishing) return
+        val player = Minecraft.getMinecraft().thePlayer
+        val heldItem = player.heldItem
         if (heldItem == null || heldItem.item != Items.fishing_rod) return
 
         if (event.entity is EntityArmorStand) {
             if (event.entity.hasCustomName() && event.entity.customNameTag.contains("!!!")) {
                 if (!event.entity.customNameTag.endsWith("§r")) {
                     event.entity.customNameTag += "§r"
-                    Minecraft.getMinecraft().thePlayer.addChatMessage(ChatComponentText("Fish Hooked"))
+                    player.addChatMessage(ChatComponentText("Fish Hooked"))
                     fails = 0
                     fishCount++
                     fishCountdown = -1
-                    incoming =false
-                    Executors.newSingleThreadScheduledExecutor().schedule({
-                        rightClick()
-                    }, (Random.nextInt(150) + 50).toLong(), TimeUnit.MILLISECONDS)
 
-                    if(config.noRecast) return
-                    Executors.newSingleThreadScheduledExecutor().schedule({
+
+                    val executor = Executors.newSingleThreadScheduledExecutor()
+
+                    var firstDelay = (Random.nextInt(150) + 50).toLong();
+                    executor.schedule({
                         rightClick()
-                        lastReCast = System.currentTimeMillis()
-                    }, (Random.nextInt(config.recastDelay, config.recastDelay+200)).toLong(), TimeUnit.MILLISECONDS)
+                    }, firstDelay, TimeUnit.MILLISECONDS)
+
+                    var offset = 0
+                    if (config.instakill) {
+                        offset = (firstDelay+ 1550).toInt() + (70* config.clickCount-1)
+                        // Switch to slot 2 (index 1), attack, then switch back
+                        executor.schedule({
+                            player.inventory.currentItem = config.weaponSlot  // Switch to slot 2
+                        }, firstDelay+400, TimeUnit.MILLISECONDS)
+
+                        for (i in 0..<config.clickCount) {
+                            executor.schedule({ rightClick() }, firstDelay + (500) + (i*70), TimeUnit.MILLISECONDS)
+                        }
+
+
+                        executor.schedule({
+                            rightClick()  // Attack
+                        }, firstDelay+  500 + (70* config.clickCount-1), TimeUnit.MILLISECONDS)
+
+                        executor.schedule({
+                            player.inventory.currentItem = 0  // Switch back to fishing rod slot
+                        }, firstDelay + 650 + (70* config.clickCount-1), TimeUnit.MILLISECONDS)
+
+                    }
+                    if (!config.noRecast) {
+                        executor.schedule({
+                            rightClick()
+                            lastReCast = System.currentTimeMillis()
+                        }, (Random.nextInt(offset + config.recastDelay , offset + config.recastDelay + 200)).toLong(), TimeUnit.MILLISECONDS)
+                    }
+
+
+
+
+
                 }
             }
         }
     }
+
 
     @SubscribeEvent
     fun onIncoming(event: net.minecraftforge.event.entity.EntityEvent) {
@@ -113,8 +144,8 @@ object AutoFisher {
                 Minecraft.getMinecraft().thePlayer.inventory.currentItem = config.weaponSlot
                 addMsg("Disabling")
                 GlobalScope.launch {
-                    DiscordUtils.sendWebhook("Alert","Auto fishing disabled due to failed attempts "+if (config.pingUser) "<@${config.userID}>" else "",
-                        Color.RED)
+                    DiscordUtils.sendWebhook("Alert","Auto fishing disabled due to failed attempts ",
+                        Color.RED, true)
 
                 }
 
@@ -124,7 +155,7 @@ object AutoFisher {
 
 
 
-            if(failsafeRecastEnabled && ((System.currentTimeMillis() - lastReCast > config.autoRecastOnFail*1000) ) ){
+            if(failsafeRecastEnabled && ((System.currentTimeMillis() - lastReCast > config.autoRecastOnFail*1000) ) && !incoming ){
                 lastReCast = System.currentTimeMillis()
                 incoming = false
                 fishCountdown = config.fishCountdown
@@ -136,7 +167,7 @@ object AutoFisher {
                     fails++
                     addMsg("Fail $fails")
                     GlobalScope.launch {
-                        DiscordUtils.sendWebhookText("Fail $fails"+if (config.pingUser) "<@${config.userID}>" else "")
+                        DiscordUtils.sendWebhookText("Fail $fails",false)
 
                     }
 

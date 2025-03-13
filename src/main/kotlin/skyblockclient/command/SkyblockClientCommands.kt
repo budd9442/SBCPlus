@@ -8,7 +8,7 @@ import skyblockclient.SkyblockClient.Companion.display
 import skyblockclient.config.Config.mimicMessage
 import skyblockclient.features.CapeManager
 import skyblockclient.utils.DiscordUtils
-import skyblockclient.utils.DiscordUtils.player
+
 
 import skyblockclient.utils.Utils.modMessage
 import java.awt.Color
@@ -47,7 +47,7 @@ class SkyblockClientCommands : CommandBase() {
             }
             "test" -> {
                 DiscordUtils.sendWebhook(
-                    "Alert", player.name + " Logged in! <@" + config.userID + ">", Color.GREEN
+                    "Alert", Minecraft.getMinecraft().thePlayer.name + " Logged in! ", Color.GREEN, true
                 )
             }
             "af" -> {

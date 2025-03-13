@@ -24,6 +24,25 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         subcategory = "1. General"
     )
     var autoFishing = false
+
+    @Property(
+        type = PropertyType.SWITCH,
+        name = "Auto hype fishing",
+        description = "instantly right click when hooked",
+        category = "Fishing",
+        subcategory = "1. General"
+    )
+    var instakill = false
+    @Property(
+        type = PropertyType.SLIDER,
+        name = "Hype fishing click count",
+        description = "how many times should hype be spammed",
+        category = "Fishing",
+        subcategory = "6. Hype Fishing",
+        min = 1,
+        max = 10,
+    )
+    var clickCount = 1
     @Property(
     type = PropertyType.SWITCH,
     name = "Discord Alerts",

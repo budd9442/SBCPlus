@@ -62,7 +62,7 @@ object MacroSafety {
         for (player in playersToAdd) {
             thePlayer.addChatMessage(ChatComponentText(ChatFormatting.BLUE.toString() + "+" + player))
             GlobalScope.launch {
-                DiscordUtils.sendWebhookText("+$player")
+                DiscordUtils.sendWebhookText("+$player",false)
 
             }
         }
@@ -70,7 +70,7 @@ object MacroSafety {
         for (player in playersToRemove) {
             thePlayer.addChatMessage(ChatComponentText(ChatFormatting.RED.toString() + "-" + player))
             GlobalScope.launch {
-                DiscordUtils.sendWebhookText("-$player")
+                DiscordUtils.sendWebhookText("-$player",false)
 
             }
         }
@@ -121,7 +121,7 @@ object MacroSafety {
     fun onWorldLoad(event:WorldEvent.Load){
         if( config.worldChangeAlert && config.antiAFK){
             GlobalScope.launch {
-            DiscordUtils.sendWebhook("Alert","World changed "+if (config.pingUser) "<@${config.userID}>" else "",Color.RED)
+            DiscordUtils.sendWebhook("Alert","World changed ",Color.RED, config.pingUser)
 
             }
         }
@@ -137,8 +137,9 @@ object MacroSafety {
             GlobalScope.launch {
                 DiscordUtils.sendWebhook(
                     "Alert",
-                    "World changed " + if (config.pingUser) "<@${config.userID}>" else "",
-                    Color.RED
+                    "World changed " ,
+                    Color.RED,
+                    config.pingUser
                 )
             }
         }
@@ -153,7 +154,7 @@ object MacroSafety {
          lastPause = System.currentTimeMillis()
         if(config.playerInRangeAlert)
         GlobalScope.launch {
-            DiscordUtils.sendWebhook("Alert","Player in range! Pausing" + if (config.pingUser) "<@${config.userID}>" else "", Color.RED)
+            DiscordUtils.sendWebhook("Alert","Player in range! Pausing" , Color.RED, config.pingUser)
         }
         wasRecastFailEnabled = AutoFisher.failsafeRecastEnabled
         AutoFisher.failsafeRecastEnabled = false
@@ -168,7 +169,7 @@ object MacroSafety {
     fun resume(){
         if(config.playerInRangeAlert)
         GlobalScope.launch {
-            DiscordUtils.sendWebhook("Alert","No players in range! Resuming", Color.GREEN)
+            DiscordUtils.sendWebhook("Alert","No players in range! Resuming", Color.GREEN, false)
         }
         addMsg("Resuming")
         (Minecraft.getMinecraft()).thePlayer.inventory.currentItem = config.rodSlot

@@ -66,7 +66,7 @@ object WormFishing {
                 (Minecraft.getMinecraft()).thePlayer.inventory.currentItem = config.rodSlot
             }
 
-            if(tickCounter % (config.autoKillDelay*20+100) == 0){
+            if(tickCounter % (config.autoKillDelay*20+80) == 0){
                 rightClick()
                 tickCounter = 0
                 mobCap = false
