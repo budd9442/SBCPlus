@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/SkyblockClient.main.iml" filepath="$PROJECT_DIR$/.idea/modules/SkyblockClient.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/SkyblockClient.test.iml" filepath="$PROJECT_DIR$/.idea/modules/SkyblockClient.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/skyblockclient.SkyblockClient.test.iml" filepath="$PROJECT_DIR$/.idea/modules/skyblockclient.SkyblockClient.test.iml" />
     </modules>
   </component>
 </project>

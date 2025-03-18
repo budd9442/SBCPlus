@@ -66,24 +66,24 @@ object AutoFisher {
 
                     var offset = 0
                     if (config.instakill) {
-                        offset = (firstDelay+ 1550).toInt() + (70* config.clickCount-1)
+                        offset = (firstDelay+ 1550).toInt() + (config.clickDelay* config.clickCount-1)
                         // Switch to slot 2 (index 1), attack, then switch back
                         executor.schedule({
                             player.inventory.currentItem = config.weaponSlot  // Switch to slot 2
                         }, firstDelay+400, TimeUnit.MILLISECONDS)
 
                         for (i in 0..<config.clickCount) {
-                            executor.schedule({ rightClick() }, firstDelay + (500) + (i*70), TimeUnit.MILLISECONDS)
+                            executor.schedule({ rightClick() }, firstDelay + (500) + (i* rand(config.clickDelay,config.clickDelay+10)), TimeUnit.MILLISECONDS)
                         }
 
 
                         executor.schedule({
                             rightClick()  // Attack
-                        }, firstDelay+  500 + (70* config.clickCount-1), TimeUnit.MILLISECONDS)
+                        }, firstDelay+  500 + (rand(config.clickDelay,config.clickDelay+10)* config.clickCount-1), TimeUnit.MILLISECONDS)
 
                         executor.schedule({
                             player.inventory.currentItem = 0  // Switch back to fishing rod slot
-                        }, firstDelay + 650 + (70* config.clickCount-1), TimeUnit.MILLISECONDS)
+                        }, firstDelay + 650 + (rand(config.clickDelay,config.clickDelay+10)* config.clickCount-1), TimeUnit.MILLISECONDS)
 
                     }
                     if (!config.noRecast) {
@@ -192,7 +192,7 @@ object AutoFisher {
 //
 //                }
 //            }
-            if(fishCount> rand(2,6)){
+            if(fishCount> rand(2,4)){
                 //addMsg("Jittering")
                 if(lastYaw!=0f){
                     MouseUtils.look(-lastYaw,-lastPitch, rand(config.mouseMoveTime.toInt(),100+ config.mouseMoveTime.toInt()))

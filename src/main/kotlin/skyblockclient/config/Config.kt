@@ -43,6 +43,17 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         max = 10,
     )
     var clickCount = 1
+
+    @Property(
+        type = PropertyType.SLIDER,
+        name = "Hype fishing click delay",
+        description = "delay between hype clicks",
+        category = "Fishing",
+        subcategory = "6. Hype Fishing",
+        min = 70,
+        max = 500,
+    )
+    var clickDelay = 100
     @Property(
     type = PropertyType.SWITCH,
     name = "Discord Alerts",
