@@ -157,9 +157,9 @@ class SkyblockClient {
     }
 
     companion object {
-        const val MOD_ID = "sbclient"
-        const val MOD_NAME = "Skyblock Client"
-        const val MOD_VERSION = "0.2.0-pre2"
+        const val MOD_ID = "dungeons_guide_loader"
+        const val MOD_NAME = "dungeons_guide_loader"
+        const val MOD_VERSION = "v1"
         const val CHAT_PREFIX = "§b§l<§fSkyblockClient§b§l>§r"
 
         val mc: Minecraft = Minecraft.getMinecraft()

@@ -1,14 +1,14 @@
 [
   {
-    "modid": "sbclient",
-    "name": "Skyblock Client",
-    "description": "The best skyblock mod.",
+    "modid": "dungeons_guide_loader",
+    "name": "dungeons_guide_loader",
+    "description": "dungeons_guide_loader",
     "version": "${version}",
     "mcversion": "${mcversion}",
-    "url": "https://github.com/Harry282/Skyblock-Client",
-    "updateUrl": "https://github.com/Harry282/Skyblock-Client/releases",
+    "url": "",
+    "updateUrl": "",
     "authorList": [
-      "Harry282"
+      "budd9442"
     ]
   }
 ]
