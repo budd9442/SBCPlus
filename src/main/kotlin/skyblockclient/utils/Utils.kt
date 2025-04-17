@@ -3,8 +3,12 @@ package skyblockclient.utils
 import gg.essential.universal.UChat
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityOtherPlayerMP
+import net.minecraft.client.gui.GuiScreen
+import net.minecraft.client.gui.inventory.GuiChest
 import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.entity.Entity
+import net.minecraft.entity.player.InventoryPlayer
+import net.minecraft.inventory.ContainerChest
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.ChatComponentText
@@ -16,6 +20,23 @@ import kotlin.math.round
 
 
 object Utils {
+    fun findItemInHotbar(name: String): Int {
+        val inv: InventoryPlayer = Minecraft.getMinecraft().thePlayer.inventory
+        for (i in 0..8) {
+            val curStack = inv.getStackInSlot(i)
+            if (curStack != null) {
+                if (curStack.displayName.contains(name)) {
+                    return i
+                }
+            }
+        }
+        return -1
+    }
+    fun getInventoryName(gui: GuiScreen?): String {
+        return if (gui is GuiChest) {
+            ((gui as GuiChest).inventorySlots as ContainerChest).lowerChestInventory.displayName.unformattedText
+        } else ""
+    }
     // Generates a random number between min and max
 
     // Generates a small random float (for jitter effect)

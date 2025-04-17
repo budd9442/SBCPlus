@@ -31,7 +31,7 @@ object WormFishing {
     @SubscribeEvent
     fun onChat(event: ClientChatReceivedEvent) {
         if (Config.renewPass && event.type.toInt() == 0) {
-            if (event.message.unformattedText == "Your pass to the Crystal Hollows will expire in 1 minute") {
+            if (event.message.unformattedText.contains("Crystal Hollows will expire in 1 minute")) {
                 Minecraft.getMinecraft().thePlayer.sendChatMessage("/purchasecrystallhollowspass")
             }
         }

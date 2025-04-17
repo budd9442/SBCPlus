@@ -19,11 +19,15 @@ val modVersion: String by project
 version = modVersion
 group = modID
 
+
 repositories {
+    maven("https://files.minecraftforge.net/maven")
+    mavenCentral()
     maven("https://repo.spongepowered.org/repository/maven-public/")
-    maven("https://repo.sk1er.club/repository/maven-public")
+    maven("https://repo.essential.gg/repository/maven-public/")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
     maven ("https://jitpack.io")
+    //maven("https://repo.sk1er.club/repository/maven-public")
 }
 
 val packageLib by configurations.creating {

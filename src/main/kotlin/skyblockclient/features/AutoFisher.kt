@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.gameevent.InputEvent
 import net.minecraftforge.fml.common.gameevent.TickEvent
 import skyblockclient.SkyblockClient.Companion.config
 import skyblockclient.SkyblockClient.Companion.keyBinds
+import skyblockclient.config.Config
 import skyblockclient.utils.DiscordUtils
 import skyblockclient.utils.MouseUtils
 import skyblockclient.utils.Utils
@@ -66,24 +67,24 @@ object AutoFisher {
 
                     var offset = 0
                     if (config.instakill) {
-                        offset = (firstDelay+ 1550).toInt() + (config.clickDelay* config.clickCount-1)
+                        offset = (firstDelay+  (Config.swapToHHypeDelay + Config.wimpactDelay + Config.swapBackDelay)).toInt() + (config.clickDelay* config.clickCount-1)
                         // Switch to slot 2 (index 1), attack, then switch back
                         executor.schedule({
                             player.inventory.currentItem = config.weaponSlot  // Switch to slot 2
-                        }, firstDelay+400, TimeUnit.MILLISECONDS)
+                        }, firstDelay+ Config.swapToHHypeDelay, TimeUnit.MILLISECONDS)
 
                         for (i in 0..<config.clickCount) {
-                            executor.schedule({ rightClick() }, firstDelay + (500) + (i* rand(config.clickDelay,config.clickDelay+10)), TimeUnit.MILLISECONDS)
+                            executor.schedule({ rightClick() }, firstDelay + (Config.swapToHHypeDelay + Config.wimpactDelay) + (i* rand(config.clickDelay,config.clickDelay+10)), TimeUnit.MILLISECONDS)
                         }
 
 
-                        executor.schedule({
-                            rightClick()  // Attack
-                        }, firstDelay+  500 + (rand(config.clickDelay,config.clickDelay+10)* config.clickCount-1), TimeUnit.MILLISECONDS)
+//                        executor.schedule({
+//                            rightClick()  // Attack
+//                        }, firstDelay+  500 + (rand(config.clickDelay,config.clickDelay+10)* config.clickCount-1), TimeUnit.MILLISECONDS)
 
                         executor.schedule({
                             player.inventory.currentItem = 0  // Switch back to fishing rod slot
-                        }, firstDelay + 650 + (rand(config.clickDelay,config.clickDelay+10)* config.clickCount-1), TimeUnit.MILLISECONDS)
+                        }, firstDelay + (Config.swapToHHypeDelay + Config.wimpactDelay + Config.swapBackDelay) + (rand(config.clickDelay,config.clickDelay+10)* config.clickCount-1), TimeUnit.MILLISECONDS)
 
                     }
                     if (!config.noRecast) {

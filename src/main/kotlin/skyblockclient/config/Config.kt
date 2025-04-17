@@ -16,6 +16,15 @@ import java.util.function.Consumer
 object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient", sortingBehavior = Sorting) {
 
 
+//    @Property(
+//        type = PropertyType.SWITCH,
+//        name = "Auto batphone",
+//        description = "Restart slayer when a boss is killed",
+//        category = "Slayer",
+//        subcategory = "1. General"
+//    )
+//    var autoBatphone: Boolean = false
+
     @Property(
         type = PropertyType.SWITCH,
         name = "Auto fishing",
@@ -43,6 +52,50 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
         max = 10,
     )
     var clickCount = 1
+
+    @Property(
+        type = PropertyType.SLIDER,
+        name = "Hype fishing delay :  swap to hype",
+        description = "",
+        category = "Fishing",
+        subcategory = "6. Hype Fishing",
+        min = 50,
+        max = 1000,
+    )
+    var swapToHHypeDelay = 100
+
+    @Property(
+        type = PropertyType.SLIDER,
+        name = "Hype fishing delay : use wither impact ",
+        description = "",
+        category = "Fishing",
+        subcategory = "6. Hype Fishing",
+        min = 50,
+        max = 1000,
+    )
+    var wimpactDelay = 200
+
+    @Property(
+        type = PropertyType.SLIDER,
+        name = "Hype fishing delay :  swap back to rod ",
+        description = "",
+        category = "Fishing",
+        subcategory = "6. Hype Fishing",
+        min = 50,
+        max = 1000,
+    )
+    var swapBackDelay = 200
+
+    @Property(
+        type = PropertyType.SLIDER,
+        name = "Hype fishing delay :  recast",
+        description = "",
+        category = "Fishing",
+        subcategory = "6. Hype Fishing",
+        min = 50,
+        max = 1000,
+    )
+    var hfrecastDelay = 100
 
     @Property(
         type = PropertyType.SLIDER,
