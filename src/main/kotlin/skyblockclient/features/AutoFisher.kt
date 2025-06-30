@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.init.Items
 import net.minecraft.util.ChatComponentText
+import net.minecraftforge.client.event.ClientChatReceivedEvent
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.gameevent.InputEvent
@@ -41,6 +42,7 @@ object AutoFisher {
     var fishCount = 0
     var lastIncoming = System.currentTimeMillis()
     var fails = 0
+    var allowHype = false;
     @SubscribeEvent
     fun onCatch(event: net.minecraftforge.event.entity.EntityEvent) {
         if (Minecraft.getMinecraft().thePlayer == null || !config.autoFishing) return
@@ -66,7 +68,8 @@ object AutoFisher {
                     }, firstDelay, TimeUnit.MILLISECONDS)
 
                     var offset = 0
-                    if (config.instakill) {
+                    if (config.instakill && (allowHype || config.filter=="")) {
+                        allowHype = false;
                         offset = (firstDelay+  (Config.swapToHHypeDelay + Config.wimpactDelay + Config.swapBackDelay)).toInt() + (config.clickDelay* config.clickCount-1)
                         // Switch to slot 2 (index 1), attack, then switch back
                         executor.schedule({
@@ -267,6 +270,22 @@ object AutoFisher {
             }
         }
     }
+
+    @SubscribeEvent
+    fun onChat(event: ClientChatReceivedEvent) {
+        if (event.type.toInt() != 0) return  // Only process normal chat messages
+
+        if (Config.filter.isNotEmpty()) {
+            val filters = Config.filter.split(",").map { it.trim().lowercase() }
+            val message = event.message.unformattedText.lowercase()
+
+            allowHype = filters.any { message.contains(it) }
+        } else {
+            allowHype = true
+        }
+    }
+
+
 
 
 }

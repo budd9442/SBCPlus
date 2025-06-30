@@ -54,6 +54,19 @@ object Config : Vigilant(File("./config/sbclient/config.toml"), "SkyblockClient"
     var clickCount = 1
 
     @Property(
+        type = PropertyType.TEXT,
+        name = "Hype fishing filter",
+        description = "leave empty to fish evey time",
+        category = "Fishing",
+        subcategory = "6. Hype Fishing",
+        min = 1,
+        max = 10,
+    )
+    var filter = "";
+
+
+
+    @Property(
         type = PropertyType.SLIDER,
         name = "Hype fishing delay :  swap to hype",
         description = "",
